@@ -1,0 +1,48 @@
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+import arabic_reshaper
+from bidi.algorithm import get_display
+
+# فونت فارسی
+pdfmetrics.registerFont(TTFont("Vazir", "/mnt/data/Vazir.ttf"))
+
+# فایل PDF
+file_path = "/mnt/data/Active_Passive_Components_FA-NL_fixed.pdf"
+doc = SimpleDocTemplate(file_path, pagesize=A4)
+styles = getSampleStyleSheet()
+
+# تابع برای اصلاح نوشتار فارسی
+def fix_fa(text):
+    return get_display(arabic_reshaper.reshape(text))
+
+# داده‌ها
+data = [
+    ["#", "English", "Nederlands", fix_fa("فارسی"), "Application / کاربرد"],
+
+    ["1", "Transistor", "Transistor", fix_fa("ترانزیستور"), fix_fa("تقویت یا کلیدزنی سیگنال")],
+    ["2", "Diode", "Diode", fix_fa("دیود"), fix_fa("یکسوسازی جریان")],
+    ["3", "LED", "LED", fix_fa("دیود نورافشان"), fix_fa("تولید نور")],
+    ["4", "Photodiode", "Fotodiode", fix_fa("فوتودیود"), fix_fa("نور به جریان")],
+    ["5", "Integrated Circuit", "Geïntegreerde Schakeling", fix_fa("مدار مجتمع"), fix_fa("مدارهای پیچیده")],
+    ["6", "Operational Amplifier", "Operationele Versterker", fix_fa("تقویت‌کننده عملیاتی"), fix_fa("تقویت سیگنال")],
+    ["7", "Seven Segment", "Zeven Segment", fix_fa("نمایشگر هفت قسمتی"), fix_fa("نمایش اعداد")],
+    ["8", "Battery", "Batterij", fix_fa("باتری"), fix_fa("منبع انرژی")],
+]
+
+# جدول
+table = Table(data, colWidths=[25, 90, 120, 120, 180])
+table.setStyle(TableStyle([
+    ("BACKGROUND", (0, 0), (-1, 0), colors.lightblue),
+    ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ("FONTNAME", (0, 0), (-1, -1), "Vazir"),
+    ("FONTSIZE", (0, 0), (-1, -1), 9),
+    ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
+    ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
+]))
+
+doc.build([Paragraph("Active & Passive Components (FA-NL)", styles["Title"]), table])
